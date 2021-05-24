@@ -4,7 +4,7 @@ This is a simple program that exhaustively computes the number of possible solut
 
 Program output:
 
-```javascript
+```java
 n = 1, solutions = 1
 
 X
