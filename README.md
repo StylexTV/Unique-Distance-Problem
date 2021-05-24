@@ -17,7 +17,7 @@ X .
 X X
 . .
 
-n = 3, solutions = 5, time = 0
+n = 3, solutions = 5, time = 1
 
 X X .   X X .
 . . .   . . .
@@ -31,7 +31,7 @@ X X .
 . . X
 . . .
 
-n = 4, solutions = 23, time = 5
+n = 4, solutions = 23, time = 4
 
 X X . .   X X . .   X X . .   X X . .
 . . . .   . . . .   . . . .   . . . X
@@ -63,7 +63,7 @@ X X . .   X . . .   X . X .
 X . . X   . . . X   . . . X
 . . . .   . . . .   . . . .
 
-n = 5, solutions = 35, time = 40
+n = 5, solutions = 35, time = 39
 
 X X . . .   X X . . .   X X . . .   X X . . .   X . X . .
 . . X . .   . . . . .   . . . . .   . . X . .   . . . . .
@@ -107,7 +107,7 @@ X . X . .   X . . . .   . X X . .   X X . . .   X . X . .
 . . . . .   . . . X X   . . X . X   . . . . X   . . X X .
 X . . . .   . . . . .   . . . . .   . . . . .   . . . . .
 
-n = 6, solutions = 2, time = 224
+n = 6, solutions = 2, time = 199
 
 X X . . . .
 . . . X . .
@@ -123,7 +123,7 @@ X . X . . X
 . . . . X .
 . . . . X .
 
-n = 7, solutions = 1, time = 8716
+n = 7, solutions = 1, time = 6697
 
 X . X . . . .
 . . X . . . .
