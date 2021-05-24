@@ -1,5 +1,7 @@
 package de.stylextv.udp.board;
 
+import java.util.HashSet;
+
 public class DistanceTable {
 	
 	private static final DistanceTable[] TABLES = new DistanceTable[15];
@@ -38,7 +40,21 @@ public class DistanceTable {
 		return table[index1][index2];
 	}
 	
-	public static final int getDistance(int n, int index1, int index2) {
+	public static HashSet<Integer> getDistances(int index, Board b) {
+		HashSet<Integer> set = new HashSet<>();
+		
+		for(int i = 0; i < b.getCount(); i++) {
+			int dis = getDistance(b.getN(), index, b.getIndex(i));
+			
+			if(set.contains(dis)) return null;
+			
+			set.add(dis);
+		}
+		
+		return set;
+	}
+	
+	public static int getDistance(int n, int index1, int index2) {
 		DistanceTable t = TABLES[n];
 		
 		if(t == null) {

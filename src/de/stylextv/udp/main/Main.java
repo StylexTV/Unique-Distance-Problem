@@ -4,17 +4,25 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import de.stylextv.udp.board.Board;
+import de.stylextv.udp.board.DistanceTable;
+import de.stylextv.udp.board.Hash;
 
 public class Main {
 	
+	public static final int MAX_N = 15;
+	
 	public static void main(String[] args) {
-		for(int n = 1; n <= 15; n++) {
+		for(int n = 1; n <= MAX_N; n++) {
+			
+			long time = System.currentTimeMillis();
 			
 			ArrayList<Board> solutions = startSimulation(n);
 			
+			long now = System.currentTimeMillis();
+			
 			int l = solutions.size();
 			
-			System.out.println("n = " + n + ", solutions = " + l + "\n");
+			System.out.println("n = " + n + ", solutions = " + l + ", time = " + (now - time) + "\n");
 			
 			int width = (int) Math.min(5, Math.sqrt(l));
 			
@@ -37,7 +45,7 @@ public class Main {
 	}
 	
 	private static ArrayList<Board> startSimulation(int n) {
-		HashSet<Long> solutions = new HashSet<>();
+		ArrayList<Hash> solutions = new ArrayList<>();
 		
 		Board b = new Board(n);
 		
@@ -48,31 +56,46 @@ public class Main {
 		return removeSymmetries(solutions, n);
 	}
 	
-	private static void runSimulation(HashSet<Long> solutions, Board b, int length, int start) {
+	private static void runSimulation(ArrayList<Hash> solutions, Board b, int length, int start) {
 		if(b.isFull()) {
 			
-			if(b.isValid()) {
-				solutions.add(b.getHash());
-			}
+			solutions.add(b.getHash().clone());
 			
 			return;
 		}
 		
-		if(start >= length || (start > length / 2 && b.getCount() == 0)) return;
+		if(start >= length) return;
+		
+		int half = length / 2;
+		
+		int halfCount = b.getN() / 2;
+		
+		if(start == half && b.getCount() < halfCount) {
+			return;
+		}
 		
 		runSimulation(solutions, b, length, start + 1);
 		
-		b.setFlipped(start, true);
+		HashSet<Integer> distances = DistanceTable.getDistances(start, b);
 		
-		runSimulation(solutions, b, length, start + 1);
-		
-		b.setFlipped(start, false);
+		if(distances != null && !b.hasUsedDistance(distances)) {
+			
+			b.setFlipped(start, true);
+			
+			b.addUsedDistances(distances);
+			
+			runSimulation(solutions, b, length, start + 1);
+			
+			b.setFlipped(start, false);
+			
+			b.removeUsedDistances(distances);
+		}
 	}
 	
-	private static ArrayList<Board> removeSymmetries(HashSet<Long> set, int n) {
+	private static ArrayList<Board> removeSymmetries(ArrayList<Hash> list, int n) {
 		ArrayList<Board> solutions = new ArrayList<>();
 		
-		for(long hash : set) {
+		for(Hash hash : list) {
 			
 			Board b = new Board(n, hash);
 			
@@ -95,7 +118,7 @@ public class Main {
 			}
 		}
 		
-		solutions.sort((b1, b2) -> Long.compare(b2.getHash(), b1.getHash()));
+		solutions.sort((b1, b2) -> b2.getHash().compareTo(b1.getHash()));
 		
 		return solutions;
 	}

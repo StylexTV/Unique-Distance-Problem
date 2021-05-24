@@ -2,72 +2,83 @@ package de.stylextv.udp.board;
 
 import java.util.HashSet;
 
+import de.stylextv.udp.main.Main;
+
 public class Board {
+	
+	private static final Hash[] INDEX_MASKS = new Hash[Main.MAX_N * Main.MAX_N];
+	
+	static {
+		for(int i = 0; i < INDEX_MASKS.length; i++) {
+			
+			Hash h = new Hash(i + 1);
+			
+			h.flipBit(i);
+			
+			INDEX_MASKS[i] = h;
+		}
+	}
 	
 	private int n;
 	
-	private long hash;
+	private Hash hash;
 	
 	private int count;
 	
 	private int[] indices;
 	
-	private long[] symmetries;
+	private HashSet<Integer> usedDistances;
+	
+	private Hash[] symmetries;
 	
 	public Board(int n) {
 		this.n = n;
+		this.hash = new Hash(n * n);
 		this.indices = new int[n];
-		this.symmetries = new long[8];
+		this.usedDistances = new HashSet<>();
+		this.symmetries = new Hash[8];
 	}
 	
-	public Board(int n, long hash) {
+	public Board(int n, Hash hash) {
 		this(n);
 		
-		this.count = Long.bitCount(hash);
+		this.count = hash.bitCount();
 		
 		this.hash = hash;
 	}
 	
-	public boolean isValid() {
-		HashSet<Integer> set = new HashSet<>();
-		
-		for(int i = 0; i < n - 1; i++) {
-			if(!isValid(set, i, indices[i])) {
-				return false;
-			}
+	public boolean hasUsedDistance(HashSet<Integer> set) {
+		for(int dis : set) {
+			if(usedDistances.contains(dis)) return true;
 		}
 		
-		return true;
-	}
-	
-	private boolean isValid(HashSet<Integer> set, int i, int index) {
-		for(int j = i + 1; j < n; j++) {
-			int index2 = indices[j];
-			
-			int dis = DistanceTable.getDistance(n, index, index2);
-			
-			if(set.contains(dis)) return false;
-			
-			set.add(dis);
-		}
-		
-		return true;
+		return false;
 	}
 	
 	public boolean isSymmetricalTo(Board b) {
-		for(long hash : b.getSymmetries()) {
+		for(Hash hash : b.getSymmetries()) {
 			if(isSymmetricalTo(hash)) return true;
 		}
 		
 		return false;
 	}
 	
-	private boolean isSymmetricalTo(long hash) {
-		for(long l : symmetries) {
-			if(l == hash) return true;
+	private boolean isSymmetricalTo(Hash hash) {
+		for(Hash h : symmetries) {
+			if(h.equals(hash)) return true;
 		}
 		
 		return false;
+	}
+	
+	public void print() {
+		String[] arr = new String[n];
+		
+		print(arr, 0);
+		
+		for(String s : arr) System.out.println(s);
+		
+		System.out.println();
 	}
 	
 	public void print(String[] arr, int offset) {
@@ -95,11 +106,11 @@ public class Board {
 		int j = 0;
 		
 		for(int i = 0; i < 4; i++) {
-			symmetries[j] = getHash();
+			symmetries[j] = hash.clone();
 			
 			mirror();
 			
-			symmetries[j + 1] = getHash();
+			symmetries[j + 1] = hash.clone();
 			
 			mirror();
 			
@@ -110,7 +121,7 @@ public class Board {
 	}
 	
 	private void rotate() {
-		long newHash = 0;
+		Hash newHash = new Hash(hash.getMaxLength());
 		
 		for(int y = 0; y < n; y++) {
 			for(int x = 0; x < n; x++) {
@@ -121,9 +132,7 @@ public class Board {
 					
 					int index = newY * n + newX;
 					
-					long key = 1l << index;
-					
-					newHash |= key;
+					newHash.add(INDEX_MASKS[index]);
 				}
 			}
 		}
@@ -132,7 +141,7 @@ public class Board {
 	}
 	
 	private void mirror() {
-		long newHash = 0;
+		Hash newHash = new Hash(hash.getMaxLength());
 		
 		for(int y = 0; y < n; y++) {
 			for(int x = 0; x < n; x++) {
@@ -143,9 +152,7 @@ public class Board {
 					
 					int index = newY * n + newX;
 					
-					long key = 1l << index;
-					
-					newHash |= key;
+					newHash.add(INDEX_MASKS[index]);
 				}
 			}
 		}
@@ -172,7 +179,7 @@ public class Board {
 		if(mirror) mirror();
 	}
 	
-	public long getHash() {
+	public Hash getHash() {
 		return hash;
 	}
 	
@@ -181,22 +188,28 @@ public class Board {
 	}
 	
 	public boolean isFlipped(int index) {
-		long key = 1l << index;
-		
-		return (hash & key) != 0;
+		return hash.includes(INDEX_MASKS[index]);
 	}
 	
 	public void setFlipped(int index, boolean b) {
-		long key = 1l << index;
-		
-		if(((hash & key) != 0) != b) {
+		if(isFlipped(index) != b) {
 			
-			hash ^= key;
+			hash.flip(INDEX_MASKS[index]);
 			
-			if(b) indices[count] = index;
+			if(b) {
+				indices[count] = index;
+			}
 			
 			count += b ? 1 : -1;
 		}
+	}
+	
+	public void addUsedDistances(HashSet<Integer> set) {
+		usedDistances.addAll(set);
+	}
+	
+	public void removeUsedDistances(HashSet<Integer> set) {
+		usedDistances.removeAll(set);
 	}
 	
 	public int getN() {
@@ -207,18 +220,22 @@ public class Board {
 		return count;
 	}
 	
-	public long[] getSymmetries() {
+	public int getIndex(int i) {
+		return indices[i];
+	}
+	
+	public Hash[] getSymmetries() {
 		return symmetries;
 	}
 	
-	private static boolean compareHashes(long hash1, long hash2) {
-		if(hash1 == hash2) return false;
+	private static boolean compareHashes(Hash hash1, Hash hash2) {
+		if(hash1.equals(hash2)) return false;
 		
-		long l1 = Long.lowestOneBit(hash1);
-		long l2 = Long.lowestOneBit(hash2);
+		Hash l1 = hash1.getLowestBit();
+		Hash l2 = hash2.getLowestBit();
 		
-		if(l1 != l2) return l1 < l2;
-		return compareHashes(hash1 ^ l1, hash2 ^ l2);
+		if(!l1.equals(l2)) return l1.compareTo(l2) < 0;
+		return compareHashes(Hash.xor(hash1, l1), Hash.xor(hash2, l2));
 	}
 	
 }
