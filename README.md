@@ -133,11 +133,15 @@ X . . . . . .
 . . . . . X .
 . . . . . . X
 
-n = 8, solutions = 0, time = 0.9s
+n = 8, solutions = 0, time = 1s
 
-n = 9, solutions = 0, time = 8.8s
+n = 9, solutions = 0, time = 9s
 
-n = 10, solutions = 0, time = 28.6s
+n = 10, solutions = 0, time = 29.3s
+
+n = 11, solutions = 0, time = 312.8s
+
+n = 12, solutions = 0, time = 743s
 
 ...
 
