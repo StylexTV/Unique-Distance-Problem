@@ -6,6 +6,7 @@ import java.util.HashSet;
 import de.stylextv.udp.board.Board;
 import de.stylextv.udp.board.DistanceTable;
 import de.stylextv.udp.board.Hash;
+import de.stylextv.udp.util.MathUtil;
 
 public class Main {
 	
@@ -22,7 +23,7 @@ public class Main {
 			
 			int l = solutions.size();
 			
-			System.out.println("n = " + n + ", solutions = " + l + ", time = " + (now - time) + "\n");
+			System.out.println("n = " + n + ", solutions = " + l + ", time = " + MathUtil.DECIMAL_FORMAT.format((now - time) / 1000f) + "s\n");
 			
 			int width = (int) Math.min(5, Math.sqrt(l));
 			
