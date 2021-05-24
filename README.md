@@ -1,4 +1,4 @@
-# Unique-Distance-Problem
+# Unique Distance Problem
 
 This is a simple program that exhaustively computes the number of possible solutions to arrange `n` pieces on an `n x n` grid such that each possible pairing has a unique distance compared to all the other different pairings.
 
